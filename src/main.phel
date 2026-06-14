@@ -1,0 +1,39 @@
+(ns phel-flappybird.main
+  (:require phel-flappybird.config :refer [parse-config])
+  (:require phel-flappybird.core.version :refer [version])
+  (:require phel-flappybird.game :as game))
+
+(defn- has-flag? [args & names]
+  (some? (find (fn [a] (some (fn [n] (= a n)) names)) args)))
+
+(defn- print-version []
+  (println (str "phel-flappybird " version)))
+
+(defn- print-help []
+  (println (str "phel-flappybird " version " - Flappy Bird in your terminal"))
+  (println)
+  (println "Usage: phel-flappybird [options]")
+  (println)
+  (println "Controls:")
+  (println "  space / up arrow   flap")
+  (println "  q                  quit")
+  (println "  r                  replay (on game over)")
+  (println)
+  (println "Options (key=value):")
+  (println "  width=N            board width        (default 60)")
+  (println "  height=N           board height       (default 22)")
+  (println "  gap=N              pipe gap height     (default 6)")
+  (println "  spacing=N          columns between pipes (default 22)")
+  (println "  gravity=F          downward accel/tick (default 0.20)")
+  (println "  flap=F             flap velocity       (default -0.95)")
+  (println "  delay=N            tick delay in µs    (default 90000)")
+  (println "  debug              show physics overlay")
+  (println)
+  (println "  --version          print version and exit")
+  (println "  --help             show this help"))
+
+(when-not *build-mode*
+  (cond
+    (has-flag? argv "--version" "-v") (print-version)
+    (has-flag? argv "--help" "-h")    (print-help)
+    :else                             (game/run (parse-config argv))))

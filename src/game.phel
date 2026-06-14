@@ -1,0 +1,57 @@
+(ns phel-flappybird.game
+  (:require phel-cli-gui.terminal-gui :as gui)
+  (:require phel-flappybird.core.physics :as phys)
+  (:require phel-flappybird.core.render :as r)
+  (:require phel-flappybird.core.input :as in)
+  (:require phel-flappybird.highscore :as hs))
+
+(defn- debug-line [debug? world]
+  (when debug?
+    (let [bird (world :bird)]
+      (format "vy: %.2f  y: %.2f  pipes: %d"
+              (bird :vy) (bird :y) (count (world :pipes))))))
+
+(defn- play-once
+  "Imperative shell: read input, advance the pure world, render, repeat —
+  until the bird dies or the player quits. Returns {:score :quit?}."
+  [config high]
+  (r/setup-styles)
+  (r/render-board (config :board))
+  (let [{:board board :bird-x bird-x :gap-height gh :pipe-width pw
+         :delay-us delay :debug? debug?} config]
+    (loop [world     (phys/initial-world board)
+           old-cells []
+           old-bird  nil]
+      (let [action    (in/read-action)
+            gap-y     (phys/random-gap-y (board :height) gh)
+            world*    (phys/step world action config gap-y)
+            score     (world* :score)
+            new-bird  {:x bird-x :y (phys/bird-row (world* :bird))}
+            new-cells (r/pipe-cells (world* :pipes) board pw gh)]
+        (r/render-scene old-cells new-cells old-bird new-bird)
+        (r/render-stats board score (max high score) (debug-line debug? world*))
+        (cond
+          (action :quit?) {:score score :quit? true}
+          (world* :dead?) {:score score :quit? false}
+          :else           (do (php/usleep delay)
+                              (recur world* new-cells new-bird)))))))
+
+(defn- quit-game []
+  (gui/cleanup-gui)
+  (println)
+  (php/exit 0))
+
+(defn run
+  "Top-level game flow: play, persist high score, offer replay."
+  [config]
+  (loop []
+    (let [high                        (hs/load-score)
+          {:score score :quit? quit?} (play-once config high)
+          {:new-record? record?}      (hs/update-if-higher score)]
+      (if quit?
+        (quit-game)
+        (do
+          (r/render-game-over (config :board) score (max high score) record?)
+          (if (in/replay? (in/wait-for-key))
+            (recur)
+            (quit-game)))))))

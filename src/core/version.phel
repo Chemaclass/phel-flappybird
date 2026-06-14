@@ -1,0 +1,4 @@
+(ns phel-flappybird.core.version)
+
+;; Single source of truth for the released version. Bumped by tools/release.sh.
+(def version "0.1.0")
