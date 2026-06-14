@@ -1,0 +1,31 @@
+(ns phel-flappybird.core.input
+  (:require phel-cli-gui.terminal-gui :as gui))
+
+(def- key-space "20")
+(def- key-up    "1b5b41")
+(def- key-q     "71")
+(def- key-r     "72")
+(def- key-R     "52")
+
+(defn- contains-hex? [hex needle]
+  (not (php/=== false (php/strpos hex needle))))
+
+(defn read-action
+  "Drains the input buffer and reports the player's intent for this tick."
+  []
+  (let [hex (get (gui/read-input 16) :hex "")]
+    {:flap? (or (contains-hex? hex key-space) (contains-hex? hex key-up))
+     :quit? (contains-hex? hex key-q)}))
+
+(defn wait-for-key
+  "Blocks (polling the non-blocking stdin) until a key is pressed; returns
+  its hex. Drops any input buffered before the call."
+  []
+  (gui/read-input 16)
+  (loop []
+    (php/usleep 30000)
+    (let [hex (get (gui/read-input 16) :hex "")]
+      (if (= hex "") (recur) hex))))
+
+(defn replay? [hex]
+  (or (contains-hex? hex key-r) (contains-hex? hex key-R)))

@@ -1,0 +1,86 @@
+(ns phel-flappybird.core.render
+  (:require phel-cli-gui.terminal-gui :as gui)
+  (:require phel-flappybird.core.physics :as p))
+
+(def- border-style {:horizontal "-" :vertical "|" :corner "+"})
+
+(def- styles
+  [["pipe" "green"  {:foreground "black"  :options ["bold"]}]
+   ["bird" nil      {:foreground "yellow" :options ["bold"]}]])
+
+(defn setup-styles []
+  (doseq [[name bg base] :in styles]
+    (gui/add-output-formatter
+     (if bg (merge base {:style-name name :background bg})
+         (merge base {:style-name name})))))
+
+(defn render-board [board]
+  (gui/clear-screen)
+  (gui/render-board board border-style))
+
+;; ---------------------------------------------------------------------------
+;; Scene diffing — only repaint cells that changed between frames.
+;; ---------------------------------------------------------------------------
+
+(defn- cell-key [x y] (str x ":" y))
+
+(defn pipe-cells
+  "Every solid (non-gap) cell of `pipes`, clipped to the board interior."
+  [pipes board pipe-width gap-height]
+  (let [w (board :width)
+        h (board :height)]
+    (for [pipe   :in pipes
+          dx     :range [0 pipe-width]
+          :let   [x (+ (pipe :x) dx)]
+          :when  (and (>= x 1) (<= x (- w 2)))
+          y      :range [1 (- h 1)]
+          :when  (not (p/in-gap? pipe y gap-height))]
+      {:x x :y y})))
+
+(defn- index-cells [cells]
+  (reduce (fn [acc c] (put acc (cell-key (c :x) (c :y)) true)) {} cells))
+
+(defn- erase-cell [c] (gui/render (c :x) (c :y) " "))
+(defn- draw-pipe-cell [c] (gui/render (c :x) (c :y) " " "pipe"))
+(defn- draw-bird [b] (gui/render (b :x) (b :y) "@" "bird"))
+
+(defn render-scene
+  "Repaints only what changed: erases vacated pipe cells and the old bird,
+  draws freshly-occupied pipe cells, then the bird on top."
+  [old-cells new-cells old-bird new-bird]
+  (let [old-idx (index-cells old-cells)
+        new-idx (index-cells new-cells)]
+    (doseq [c :in old-cells
+            :when (not (get new-idx (cell-key (c :x) (c :y))))]
+      (erase-cell c))
+    (when (and old-bird
+               (not= old-bird new-bird)
+               (not (get new-idx (cell-key (old-bird :x) (old-bird :y)))))
+      (erase-cell old-bird))
+    (doseq [c :in new-cells
+            :when (not (get old-idx (cell-key (c :x) (c :y))))]
+      (draw-pipe-cell c))
+    (draw-bird new-bird)))
+
+;; ---------------------------------------------------------------------------
+;; HUD
+;; ---------------------------------------------------------------------------
+
+(defn render-stats [board score high debug-text]
+  (let [y (+ (board :height) 1)]
+    (gui/render 0 y (format "Score: %-4d  High: %-4d  (space/up = flap, q = quit)" score high))
+    (when debug-text
+      (gui/render 0 (+ y 1) debug-text))))
+
+(defn- center [board text]
+  {:x (int (php/round (- (/ (board :width) 2.0)
+                         (/ (php/strlen text) 2.0))))
+   :y (int (php/round (/ (board :height) 2.0)))})
+
+(defn render-game-over [board score high new-record?]
+  (let [text        "GAME OVER"
+        {:x x :y y} (center board text)]
+    (gui/render x y text)
+    (gui/render x (+ y 1) (format "Score: %d" score))
+    (gui/render x (+ y 2) (if new-record? "NEW HIGH SCORE!" (format "High: %d" high)))
+    (gui/render x (+ y 4) "Press R to replay, any other key to quit")))
