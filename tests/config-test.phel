@@ -1,0 +1,17 @@
+(ns phel-flappybird-tests.config-test
+  (:require phel-flappybird.config :refer [parse-config])
+  (:require phel.test :refer [deftest is]))
+
+(deftest test-defaults
+  (let [c (parse-config [])]
+    (is (= {:width 60 :height 22} (c :board)))
+    (is (= 12 (c :bird-x)))
+    (is (= 6 (c :gap-height)))
+    (is (false? (c :debug?)))))
+
+(deftest test-overrides
+  (let [c (parse-config ["width=80" "height=30" "gap=8" "gravity=0.3" "debug"])]
+    (is (= {:width 80 :height 30} (c :board)))
+    (is (= 8 (c :gap-height)))
+    (is (= 0.3 (c :gravity)))
+    (is (true? (c :debug?)))))

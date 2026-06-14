@@ -1,0 +1,28 @@
+(ns phel-flappybird.config
+  (:require phel-flappybird.util :refer [get-int-arg get-float-arg]))
+
+(def- default-width 60)
+(def- default-height 22)
+(def- default-bird-x 12)
+(def- default-gap-height 6)
+(def- default-pipe-spacing 22)
+(def- default-pipe-width 3)
+(def- default-gravity 0.20)
+(def- default-flap-velocity -0.95)
+(def- default-delay-us 90000)
+
+(defn- flag? [args name] (contains-value? args name))
+
+(defn parse-config
+  "Build the game config map from command-line args."
+  [args]
+  {:board         {:width  (get-int-arg args "width" default-width)
+                   :height (get-int-arg args "height" default-height)}
+   :bird-x        (get-int-arg args "bird-x" default-bird-x)
+   :gap-height    (get-int-arg args "gap" default-gap-height)
+   :pipe-spacing  (get-int-arg args "spacing" default-pipe-spacing)
+   :pipe-width    (get-int-arg args "pipe-width" default-pipe-width)
+   :gravity       (get-float-arg args "gravity" default-gravity)
+   :flap-velocity (get-float-arg args "flap" default-flap-velocity)
+   :delay-us      (get-int-arg args "delay" default-delay-us)
+   :debug?        (flag? args "debug")})
