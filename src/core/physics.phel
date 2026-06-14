@@ -36,12 +36,17 @@
   [height gap-height]
   (php/mt_rand 1 (max 1 (- height gap-height 1))))
 
+(defn- rightmost-x
+  "The largest left-edge column among `pipes` (order-independent)."
+  [pipes]
+  (reduce (fn [m p] (max m (p :x))) 0 pipes))
+
 (defn needs-spawn?
-  "True when the field is empty or the newest pipe has scrolled far enough
+  "True when the field is empty or the rightmost pipe has scrolled far enough
   left to leave room for the next one."
   [pipes width pipe-spacing]
   (or (empty? pipes)
-      (<= ((last pipes) :x) (- width pipe-spacing))))
+      (<= (rightmost-x pipes) (- width pipe-spacing))))
 
 (defn move-pipes
   "Scrolls every pipe one column to the left."
