@@ -1,0 +1,124 @@
+(ns phel-flappybird.core.physics)
+
+;; ---------------------------------------------------------------------------
+;; Bird
+;; ---------------------------------------------------------------------------
+
+(defn initial-bird
+  "Bird starts centered vertically, with no vertical velocity."
+  [board]
+  {:y (/ (board :height) 2.0) :vy 0})
+
+(defn bird-row
+  "The integer terminal row the bird currently occupies."
+  [bird]
+  (int (php/round (bird :y))))
+
+(defn step-bird
+  "Advances the bird one tick. A flap snaps the velocity to `flap-velocity`;
+  otherwise gravity is added. Returns the next bird."
+  [bird gravity flapped? flap-velocity]
+  (let [vy (if flapped? flap-velocity (+ (bird :vy) gravity))]
+    {:y (+ (bird :y) vy) :vy vy}))
+
+;; ---------------------------------------------------------------------------
+;; Pipes
+;; ---------------------------------------------------------------------------
+
+(defn spawn-pipe
+  "A pipe is its left-edge column `x` and the top row of its gap `gap-y`."
+  [x gap-y]
+  {:x x :gap-y gap-y :scored? false})
+
+(defn random-gap-y
+  "A random top-of-gap row. Rows 0 and height-1 are the board border, so the
+  gap stays within the interior 1..height-2."
+  [height gap-height]
+  (php/mt_rand 1 (max 1 (- height gap-height 1))))
+
+(defn needs-spawn?
+  "True when the field is empty or the newest pipe has scrolled far enough
+  left to leave room for the next one."
+  [pipes width pipe-spacing]
+  (or (empty? pipes)
+      (<= ((last pipes) :x) (- width pipe-spacing))))
+
+(defn move-pipes
+  "Scrolls every pipe one column to the left."
+  [pipes]
+  (map (fn [p] (update p :x dec)) pipes))
+
+(defn cull-pipes
+  "Drops pipes whose right edge has scrolled past the left interior column."
+  [pipes pipe-width]
+  (filter (fn [p] (> (+ (p :x) pipe-width) 1)) pipes))
+
+(defn- in-pipe-x? [pipe x pipe-width]
+  (and (>= x (pipe :x))
+       (<= x (+ (pipe :x) (dec pipe-width)))))
+
+(defn in-gap?
+  "True when row `y` falls inside this pipe's gap."
+  [pipe y gap-height]
+  (and (>= y (pipe :gap-y))
+       (< y (+ (pipe :gap-y) gap-height))))
+
+(defn hit-pipe?
+  "True when the bird shares a column with a pipe and is outside its gap."
+  [pipes bird-x bird-y pipe-width gap-height]
+  (some? (find (fn [p] (and (in-pipe-x? p bird-x pipe-width)
+                            (not (in-gap? p bird-y gap-height))))
+               pipes)))
+
+(defn out-of-bounds?
+  "True when the bird has hit the ceiling or the ground border."
+  [bird-y height]
+  (or (< bird-y 1) (> bird-y (- height 2))))
+
+(defn dead?
+  [pipes bird-x bird-y config]
+  (let [{:board board :pipe-width pw :gap-height gh} config]
+    (or (out-of-bounds? bird-y (board :height))
+        (hit-pipe? pipes bird-x bird-y pw gh))))
+
+(defn score-pipes
+  "Marks newly-passed pipes as scored. Returns {:pipes :gained}."
+  [pipes bird-x pipe-width]
+  (let [passed? (fn [p] (and (not (p :scored?))
+                             (< (+ (p :x) (dec pipe-width)) bird-x)))
+        gained  (count (filter passed? pipes))
+        marked  (map (fn [p] (if (passed? p) (put p :scored? true) p)) pipes)]
+    {:pipes marked :gained gained}))
+
+;; ---------------------------------------------------------------------------
+;; World — the whole game as one immutable value, advanced by a pure `step`.
+;; Randomness (`gap-y`) is injected by the caller so `step` stays pure and
+;; deterministic for tests (functional core / imperative shell).
+;; ---------------------------------------------------------------------------
+
+(defn initial-world
+  [board]
+  {:bird (initial-bird board) :pipes [] :score 0 :dead? false})
+
+(defn- spawn-when-needed [pipes board pipe-spacing gap-y]
+  (if (needs-spawn? pipes (board :width) pipe-spacing)
+    (push pipes (spawn-pipe (- (board :width) 2) gap-y))
+    pipes))
+
+(defn step
+  "Pure transition for one tick. `action` is {:flap? ...}; `gap-y` is the gap
+  row to use should a new pipe be spawned this tick. Returns the next world."
+  [world action config gap-y]
+  (let [{:board board :bird-x bird-x :gap-height gh :pipe-width pw
+         :pipe-spacing spacing :gravity g :flap-velocity fv} config
+        pipes  (-> (world :pipes)
+                   (spawn-when-needed board spacing gap-y)
+                   (move-pipes)
+                   (cull-pipes pw))
+        bird   (step-bird (world :bird) g (action :flap?) fv)
+        row    (bird-row bird)
+        scored (score-pipes pipes bird-x pw)]
+    {:bird  bird
+     :pipes (scored :pipes)
+     :score (+ (world :score) (scored :gained))
+     :dead? (dead? (scored :pipes) bird-x row config)}))

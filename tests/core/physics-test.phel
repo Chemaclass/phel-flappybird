@@ -1,0 +1,104 @@
+(ns phel-flappybird-tests.core.physics-test
+  (:require phel-flappybird.core.physics :refer [initial-bird
+                                                 bird-row
+                                                 step-bird
+                                                 spawn-pipe
+                                                 needs-spawn?
+                                                 move-pipes
+                                                 cull-pipes
+                                                 in-gap?
+                                                 hit-pipe?
+                                                 out-of-bounds?
+                                                 dead?
+                                                 score-pipes
+                                                 initial-world
+                                                 step])
+  (:require phel.test :refer [deftest is]))
+
+(def- config {:board {:width 60 :height 22} :pipe-width 3 :gap-height 6})
+
+(deftest test-initial-bird
+  (is (= {:y 11.0 :vy 0} (initial-bird {:width 60 :height 22}))))
+
+(deftest test-bird-row-rounds
+  (is (= 5 (bird-row {:y 5.4 :vy 0})))
+  (is (= 6 (bird-row {:y 5.5 :vy 0}))))
+
+(deftest test-step-bird-gravity
+  (is (= {:y 10.2 :vy 0.2} (step-bird {:y 10.0 :vy 0.0} 0.2 false -1.0))
+      "no flap adds gravity to velocity"))
+
+(deftest test-step-bird-flap
+  (is (= {:y 9.0 :vy -1.0} (step-bird {:y 10.0 :vy 0.5} 0.2 true -1.0))
+      "flap snaps velocity, ignoring gravity this tick"))
+
+(deftest test-needs-spawn?
+  (is (true? (needs-spawn? [] 60 22)) "empty field needs a pipe")
+  (is (false? (needs-spawn? [(spawn-pipe 58 3)] 60 22)) "newest pipe still near the right")
+  (is (true? (needs-spawn? [(spawn-pipe 30 3)] 60 22)) "newest pipe scrolled far enough"))
+
+(deftest test-move-pipes
+  (is (= [{:x 9 :gap-y 3 :scored? false}]
+         (move-pipes [(spawn-pipe 10 3)]))))
+
+(deftest test-cull-pipes
+  (is (empty? (cull-pipes [(spawn-pipe -3 3)] 3)) "fully off the left edge")
+  (is (= 1 (count (cull-pipes [(spawn-pipe 0 3)] 3))) "right edge still visible"))
+
+(deftest test-in-gap?
+  (let [pipe (spawn-pipe 10 5)]
+    (is (false? (in-gap? pipe 4 6)) "above the gap")
+    (is (true? (in-gap? pipe 5 6)) "top of the gap")
+    (is (true? (in-gap? pipe 10 6)) "bottom of the gap")
+    (is (false? (in-gap? pipe 11 6)) "below the gap")))
+
+(deftest test-hit-pipe?
+  (let [pipes [(spawn-pipe 12 5)]]
+    (is (true? (hit-pipe? pipes 12 2 3 6)) "same column, above the gap")
+    (is (false? (hit-pipe? pipes 12 7 3 6)) "same column, inside the gap")
+    (is (false? (hit-pipe? pipes 20 2 3 6)) "different column")))
+
+(deftest test-out-of-bounds?
+  (is (true? (out-of-bounds? 0 22)) "ceiling border")
+  (is (true? (out-of-bounds? 21 22)) "ground border")
+  (is (false? (out-of-bounds? 1 22)) "top interior row")
+  (is (false? (out-of-bounds? 20 22)) "bottom interior row"))
+
+(deftest test-dead?
+  (is (true? (dead? [] 12 0 config)) "hits ceiling")
+  (is (false? (dead? [] 12 11 config)) "free flight")
+  (is (true? (dead? [(spawn-pipe 12 5)] 12 1 config)) "into a pipe"))
+
+(deftest test-score-pipes
+  (let [pipes  [(spawn-pipe 8 5) (spawn-pipe 40 5)]
+        result (score-pipes pipes 12 3)]
+    (is (= 1 (result :gained)) "one pipe fully passed")
+    (is (true? ((first (result :pipes)) :scored?)) "passed pipe marked")
+    (is (= 0 ((score-pipes (result :pipes) 12 3) :gained)) "not scored twice")))
+
+(def- step-config
+  {:board {:width 60 :height 22} :bird-x 12 :gap-height 6 :pipe-width 3
+   :pipe-spacing 22 :gravity 0.2 :flap-velocity -1.0})
+
+(deftest test-initial-world
+  (let [w (initial-world {:width 60 :height 22})]
+    (is (= 0 (w :score)))
+    (is (false? (w :dead?)))
+    (is (empty? (w :pipes)))))
+
+(deftest test-step-is-pure-and-spawns
+  (let [w0 (initial-world {:width 60 :height 22})
+        w1 (step w0 {:flap? false} step-config 7)]
+    (is (= 1 (count (w1 :pipes))) "first tick spawns a pipe")
+    (is (= step-config step-config) "config untouched")
+    (is (= w0 (initial-world {:width 60 :height 22})) "input world not mutated")))
+
+(deftest test-step-flap-rises
+  (let [w0 (initial-world {:width 60 :height 22})
+        w1 (step w0 {:flap? true} step-config 7)]
+    (is (= -1.0 ((w1 :bird) :vy)) "flap sets upward velocity")))
+
+(deftest test-step-flags-death
+  (let [w0 (put (initial-world {:width 60 :height 22}) :bird {:y 20.5 :vy 0})
+        w1 (step w0 {:flap? false} step-config 7)]
+    (is (true? (w1 :dead?)) "falling into the ground border is fatal")))
