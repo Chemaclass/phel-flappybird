@@ -1,0 +1,24 @@
+on: [push]
+
+name: CI
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          coverage: none
+      - name: Install dependencies
+        run: composer update --no-interaction --no-ansi --no-progress
+      - name: Check formatting
+        run: composer format-check
+      - name: Run phel tests
+        run: composer test
+      - name: Build
+        run: composer build
