@@ -1,1 +1,14 @@
 .idea/
+.gacela/
+.phel/
+.claude/settings.local.json
+src/PhelGenerated/
+vendor/
+out/
+
+data/error.log
+src/local.phel
+*.cache
+.phel-repl-history
+phel-config-local.php
+build/out/

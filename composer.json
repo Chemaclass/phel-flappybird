@@ -1,0 +1,57 @@
+{
+    "name": "chemaclass/phel-flappybird",
+    "description": "A CLI Flappy Bird game written in Phel",
+    "keywords": [
+        "phel",
+        "lisp",
+        "functional",
+        "game",
+        "flappybird",
+        "cli"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=8.4",
+        "ext-readline": "*",
+        "phel-lang/phel-lang": "^0.44",
+        "chemaclass/phel-cli-gui": "*"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../phel-cli-gui",
+            "options": {
+                "symlink": false
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "start": [
+            "@build",
+            "@play"
+        ],
+        "dev": "vendor/bin/phel run phel-flappybird.main",
+        "build": "vendor/bin/phel build --no-cache",
+        "play": "php out/main.php",
+        "phar": "build/phar.sh",
+        "test": "vendor/bin/phel test",
+        "format": "vendor/bin/phel format src tests",
+        "format-check": "vendor/bin/phel format --dry-run src tests",
+        "ci": [
+            "@format-check",
+            "@test",
+            "@build"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "platform": {
+            "php": "8.4"
+        }
+    }
+}
