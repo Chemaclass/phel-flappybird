@@ -1,15 +1,32 @@
 {
     "name": "chemaclass/phel-flappybird",
-    "description": "A CLI Flappy Bird game written in Phel",
+    "description": "Flappy Bird in your terminal — a CLI game written in Phel (Lisp on PHP).",
+    "type": "project",
     "keywords": [
         "phel",
+        "phel-lang",
         "lisp",
+        "php",
         "functional",
         "game",
-        "flappybird",
-        "cli"
+        "flappy-bird",
+        "cli",
+        "terminal",
+        "tui"
     ],
+    "homepage": "https://github.com/Chemaclass/phel-flappybird",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Jose M. Valera Reales",
+            "email": "phel@chemaclass.com",
+            "homepage": "https://chemaclass.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Chemaclass/phel-flappybird/issues",
+        "source": "https://github.com/Chemaclass/phel-flappybird"
+    },
     "require": {
         "php": ">=8.4",
         "ext-readline": "*",
@@ -38,6 +55,17 @@
             "@test",
             "@build"
         ]
+    },
+    "scripts-descriptions": {
+        "start": "Build then play (compiled entry point)",
+        "dev": "Run the game straight from source",
+        "build": "Compile Phel to out/",
+        "play": "Run the compiled out/main.php",
+        "phar": "Build the self-contained PHAR",
+        "test": "Run the Phel test suite",
+        "format": "Format src and tests",
+        "format-check": "Check formatting without writing",
+        "ci": "format-check + test + build"
     },
     "config": {
         "preferred-install": "dist",

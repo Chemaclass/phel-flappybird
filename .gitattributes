@@ -1,0 +1,11 @@
+# Keep the Packagist dist tarball lean: exclude dev-only paths.
+/.agnostic-ai      export-ignore
+/.github           export-ignore
+/agnostic-ai.yaml  export-ignore
+/build             export-ignore
+/tools             export-ignore
+/tests             export-ignore
+/.editorconfig     export-ignore
+/.gitattributes    export-ignore
+/.gitignore        export-ignore
+/CHANGELOG.md      export-ignore
