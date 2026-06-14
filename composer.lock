@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "22bdb57a1c3cf3ae7da4945c946b5e30",
+    "content-hash": "30b75d0feb212cefbdd6ec55d2031b45",
     "packages": [
         {
             "name": "amphp/amp",
@@ -89,18 +89,24 @@
         },
         {
             "name": "chemaclass/phel-cli-gui",
-            "version": "dev-feat/support-phel-0.44",
+            "version": "0.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Chemaclass/phel-cli-gui.git",
+                "reference": "06d2c58e2e5e538016b77b1ae91b128e18b15bbd"
+            },
             "dist": {
-                "type": "path",
-                "url": "../phel-cli-gui",
-                "reference": "58aedf524870df45897de3e165492a6563f4ea93"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Chemaclass/phel-cli-gui/zipball/06d2c58e2e5e538016b77b1ae91b128e18b15bbd",
+                "reference": "06d2c58e2e5e538016b77b1ae91b128e18b15bbd",
+                "shasum": ""
             },
             "require": {
                 "ext-pcntl": "*",
                 "ext-posix": "*",
                 "ext-readline": "*",
-                "phel-lang/phel-lang": "^0.34 || ^0.36 || ^0.44",
-                "php": ">=8.3",
+                "phel-lang/phel-lang": "^0.44",
+                "php": ">=8.4",
                 "symfony/console": "^7.4"
             },
             "require-dev": {
@@ -114,29 +120,7 @@
                     "PhelCliGui\\": "src/php/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "PhelCliGui\\Tests\\": "tests/php/"
-                }
-            },
-            "scripts": {
-                "build": [
-                    "vendor/bin/phel build --no-cache"
-                ],
-                "test": [
-                    "@test:phel",
-                    "@test:php"
-                ],
-                "test:phel": [
-                    "vendor/bin/phel test"
-                ],
-                "test:php": [
-                    "vendor/bin/phpunit tests"
-                ],
-                "format": [
-                    "vendor/bin/phel format"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -155,10 +139,11 @@
                 "lisp",
                 "phel"
             ],
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/Chemaclass/phel-cli-gui/issues",
+                "source": "https://github.com/Chemaclass/phel-cli-gui/tree/0.11.0"
+            },
+            "time": "2026-06-14T14:11:08+00:00"
         },
         {
             "name": "gacela-project/container",
