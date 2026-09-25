@@ -10,7 +10,7 @@ alwaysApply: true
 - **Namespaces use dots**, not backslashes: `(ns phel-flappybird.core.physics)`,
   one dependency per `(:require ...)` form.
 - **`doseq` for side effects, `for` for building sequences.** Rendering loops
-  that draw/erase are side effects — use `doseq`.
+  that draw/erase are side effects. Use `doseq`.
 - **Integer `/` yields a `Ratio`**, which `php/round` rejects. When a value
   feeds `php/round`/`int`, divide by a float (`(/ x 2.0)`).
 - **Do not rely on vector order** after `map`/`filter`/`push`. Compute

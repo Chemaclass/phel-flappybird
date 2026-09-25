@@ -29,7 +29,7 @@ tests/                 phel.test deftest files, mirroring src layout (`-test` su
 
 - The whole game is ONE immutable world map `{:bird :pipes :score :dead?}`,
   advanced by the pure `step` reducer in `core/physics.phel`. Keep it pure:
-  no I/O, no randomness inside `step` — randomness (the next pipe gap) is
+  no I/O, no randomness inside `step`. Randomness (the next pipe gap) is
   **injected** by the caller as an argument, so `step` stays deterministic and
   unit-testable.
 - `game.phel` is the only stateful part: read input, call `step`, render the
