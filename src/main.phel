@@ -34,6 +34,6 @@
 
 (when-not *build-mode*
   (cond
-    (has-flag? argv "--version" "-v") (print-version)
-    (has-flag? argv "--help" "-h")    (print-help)
-    :else                             (game/run (parse-config argv))))
+    (has-flag? *argv* "--version" "-v") (print-version)
+    (has-flag? *argv* "--help" "-h")    (print-help)
+    :else                               (game/run (parse-config *argv*))))
