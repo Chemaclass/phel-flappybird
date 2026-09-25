@@ -68,14 +68,14 @@ Your best score is saved to `~/.phel-flappybird-highscore`.
 
 Functional core / imperative shell:
 
-- `src/core/physics.phel` — **pure**. The whole game is one immutable world map
+- `src/core/physics.phel`: **pure**. The whole game is one immutable world map
   (`{:bird :pipes :score :dead?}`) advanced by a single `step` reducer.
   Randomness is injected by the caller, so `step` is deterministic and fully
   unit-tested.
-- `src/core/render.phel`, `src/core/input.phel` — the effectful edges (terminal
+- `src/core/render.phel`, `src/core/input.phel`: the effectful edges (terminal
   drawing via [`phel-cli-gui`](https://github.com/Chemaclass/phel-cli-gui),
   keyboard reading).
-- `src/game.phel` — the loop: read input → `step` → render → sleep → repeat.
+- `src/game.phel`: the loop: read input → `step` → render → sleep → repeat.
 
 ## Development
 
