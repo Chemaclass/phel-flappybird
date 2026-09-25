@@ -17,7 +17,7 @@ Score: 3     High: 7     (space/up = flap, q = quit)
 
 ## Play
 
-**From a release PHAR** (needs only PHP 8.4+):
+**From a release PHAR** (needs only PHP 8.5+):
 
 ```bash
 # download phel-flappybird.phar from the Releases page, then:
@@ -28,7 +28,7 @@ php phel-flappybird.phar
 
 ```bash
 composer install
-composer dev          # run straight from source
+composer dev          # run straight from source (args: composer dev -- width=80)
 # or compile an entry point and run it:
 composer start        # = composer build && composer play
 ```
@@ -81,10 +81,11 @@ Functional core / imperative shell:
 
 ```bash
 composer test           # run the phel test suite
+composer lint           # lint src + tests
 composer format         # format src + tests
 composer build          # compile to out/
 composer phar           # build build/out/phel-flappybird.phar
-composer ci             # format-check + test + build
+composer ci             # validate + format-check + lint + test + build
 ```
 
 ## Releasing

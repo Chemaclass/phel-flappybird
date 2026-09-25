@@ -1,24 +1,46 @@
-on: [push]
-
 name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install PHP
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.4
+          php-version: '8.5'
+          extensions: pcntl, posix, readline
           coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v6
+        with:
+          path: vendor
+          key: composer-8.5-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-8.5-
+
       - name: Install dependencies
-        run: composer update --no-interaction --no-ansi --no-progress
-      - name: Check formatting
-        run: composer format-check
-      - name: Run phel tests
-        run: composer test
-      - name: Build
-        run: composer build
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: CI gate
+        run: composer ci
+
+      - name: PHAR smoke test
+        run: |
+          composer phar
+          php build/out/phel-flappybird.phar --version
