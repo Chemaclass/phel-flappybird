@@ -38,7 +38,7 @@
       {:x x :y y})))
 
 (defn- index-cells [cells]
-  (reduce (fn [acc c] (put acc (cell-key (c :x) (c :y)) true)) {} cells))
+  (reduce (fn [acc c] (assoc acc (cell-key (c :x) (c :y)) true)) {} cells))
 
 (defn- erase-cell [c] (gui/render (c :x) (c :y) " "))
 (defn- draw-pipe-cell [c] (gui/render (c :x) (c :y) " " "pipe"))
@@ -78,8 +78,8 @@
    :y (int (php/round (/ (board :height) 2.0)))})
 
 (defn render-game-over [board score high new-record?]
-  (let [text        "GAME OVER"
-        {:x x :y y} (center board text)]
+  (let [text          "GAME OVER"
+        {:keys [x y]} (center board text)]
     (gui/render x y text)
     (gui/render x (+ y 1) (format "Score: %d" score))
     (gui/render x (+ y 2) (if new-record? "NEW HIGH SCORE!" (format "High: %d" high)))

@@ -16,9 +16,13 @@ alwaysApply: true
 - **Do not rely on vector order** after `map`/`filter`/`push`. Compute
   order-independent values (e.g. rightmost pipe via `reduce max`), never
   `(last pipes)` to mean "newest".
-- Use `argv` for CLI args, not `php/$argv`.
+- Use `*argv*` for CLI args, not `php/$argv`.
+- Destructure maps binding-first: `{:keys [board]}` or `{gh :gap-height}`.
+  Key-first `{:board board}` is deprecated.
+- Use `assoc` / `conj`; `put` / `push` were removed in Phel 0.53.
 - Tests use `phel.test` (`deftest`/`is`) and mirror the `src/` path with a
   `-test` suffix. Every pure function in `core/` gets a test.
 - Run `composer format` before committing; `composer ci` must pass.
+- Check for deprecations with `PHEL_WARN_DEPRECATIONS=1 composer test`.
 - Terminal I/O goes through `chemaclass/phel-cli-gui` (`terminal-gui`), which
   handles raw mode, non-blocking stdin, cursor, and ANSI styles.

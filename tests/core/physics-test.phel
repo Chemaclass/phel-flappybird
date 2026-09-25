@@ -99,6 +99,6 @@
     (is (= -1.0 ((w1 :bird) :vy)) "flap sets upward velocity")))
 
 (deftest test-step-flags-death
-  (let [w0 (put (initial-world {:width 60 :height 22}) :bird {:y 20.5 :vy 0})
+  (let [w0 (assoc (initial-world {:width 60 :height 22}) :bird {:y 20.5 :vy 0})
         w1 (step w0 {:flap? false} step-config 7)]
     (is (true? (w1 :dead?)) "falling into the ground border is fatal")))

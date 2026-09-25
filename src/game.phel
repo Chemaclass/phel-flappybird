@@ -17,8 +17,8 @@
   [config high]
   (r/setup-styles)
   (r/render-board (config :board))
-  (let [{:board board :bird-x bird-x :gap-height gh :pipe-width pw
-         :delay-us delay :debug? debug?} config]
+  (let [{:keys [board bird-x debug?] gh :gap-height pw :pipe-width
+         delay :delay-us} config]
     (loop [world     (phys/initial-world board)
            old-cells []
            old-bird  nil]
@@ -45,9 +45,9 @@
   "Top-level game flow: play, persist high score, offer replay."
   [config]
   (loop []
-    (let [high                        (hs/load-score)
-          {:score score :quit? quit?} (play-once config high)
-          {:new-record? record?}      (hs/update-if-higher score)]
+    (let [high                   (hs/load-score)
+          {:keys [score quit?]}  (play-once config high)
+          {record? :new-record?} (hs/update-if-higher score)]
       (if quit?
         (quit-game)
         (do

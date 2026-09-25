@@ -82,7 +82,7 @@
 
 (defn dead?
   [pipes bird-x bird-y config]
-  (let [{:board board :pipe-width pw :gap-height gh} config]
+  (let [{:keys [board] pw :pipe-width gh :gap-height} config]
     (or (out-of-bounds? bird-y (board :height))
         (hit-pipe? pipes bird-x bird-y pw gh))))
 
@@ -92,7 +92,7 @@
   (let [passed? (fn [p] (and (not (p :scored?))
                              (< (+ (p :x) (dec pipe-width)) bird-x)))
         gained  (count (filter passed? pipes))
-        marked  (map (fn [p] (if (passed? p) (put p :scored? true) p)) pipes)]
+        marked  (map (fn [p] (if (passed? p) (assoc p :scored? true) p)) pipes)]
     {:pipes marked :gained gained}))
 
 ;; ---------------------------------------------------------------------------
@@ -107,15 +107,15 @@
 
 (defn- spawn-when-needed [pipes board pipe-spacing gap-y]
   (if (needs-spawn? pipes (board :width) pipe-spacing)
-    (push pipes (spawn-pipe (- (board :width) 2) gap-y))
+    (conj pipes (spawn-pipe (- (board :width) 2) gap-y))
     pipes))
 
 (defn step
   "Pure transition for one tick. `action` is {:flap? ...}; `gap-y` is the gap
   row to use should a new pipe be spawned this tick. Returns the next world."
   [world action config gap-y]
-  (let [{:board board :bird-x bird-x :gap-height gh :pipe-width pw
-         :pipe-spacing spacing :gravity g :flap-velocity fv} config
+  (let [{:keys [board bird-x] gh :gap-height pw :pipe-width
+         spacing :pipe-spacing g :gravity fv :flap-velocity} config
         pipes  (-> (world :pipes)
                    (spawn-when-needed board spacing gap-y)
                    (move-pipes)
