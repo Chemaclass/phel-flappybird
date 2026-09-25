@@ -28,10 +28,10 @@
         "source": "https://github.com/Chemaclass/phel-flappybird"
     },
     "require": {
-        "php": ">=8.4",
+        "php": ">=8.5",
         "ext-readline": "*",
-        "phel-lang/phel-lang": "^0.44",
-        "chemaclass/phel-cli-gui": "^0.11"
+        "phel-lang/phel-lang": "^0.53",
+        "chemaclass/phel-cli-gui": "^0.16"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest"
@@ -48,10 +48,13 @@
         "play": "php out/main.php",
         "phar": "build/phar.sh",
         "test": "vendor/bin/phel test",
+        "lint": "vendor/bin/phel lint src tests",
         "format": "vendor/bin/phel format src tests",
         "format-check": "vendor/bin/phel format --dry-run src tests",
         "ci": [
+            "@composer validate --strict",
             "@format-check",
+            "@lint",
             "@test",
             "@build"
         ]
@@ -63,14 +66,16 @@
         "play": "Run the compiled out/main.php",
         "phar": "Build the self-contained PHAR",
         "test": "Run the Phel test suite",
+        "lint": "Lint src and tests",
         "format": "Format src and tests",
         "format-check": "Check formatting without writing",
-        "ci": "format-check + test + build"
+        "ci": "validate + format-check + lint + test + build"
     },
     "config": {
         "preferred-install": "dist",
+        "process-timeout": 0,
         "platform": {
-            "php": "8.4"
+            "php": "8.5"
         }
     }
 }

@@ -8,7 +8,7 @@ alwaysApply: true
 # phel-flappybird
 
 Flappy Bird for the terminal, written in [Phel](https://phel-lang.org) (a Lisp
-that compiles to PHP). Requires PHP >= 8.4 and phel-lang ^0.44.
+that compiles to PHP). Requires PHP >= 8.5 and phel-lang ^0.53.
 
 ## Layout
 
@@ -42,10 +42,11 @@ tests/                 phel.test deftest files, mirroring src layout (`-test` su
 ```
 composer dev          run from source (vendor/bin/phel run phel-flappybird.main)
 composer test         run the phel test suite
+composer lint         lint src + tests
 composer format       format src + tests
 composer build        compile to out/
 composer phar         build the self-contained build/out/phel-flappybird.phar
-composer ci           format-check + test + build
+composer ci           validate + format-check + lint + test + build
 ```
 
 Release with `./tools/release.sh [X.Y.Z]` (validates, builds + smoke-tests the
