@@ -11,7 +11,7 @@
 (def- default-flap-velocity -0.95)
 (def- default-delay-us 90000)
 
-(defn- flag? [args name] (contains-value? args name))
+(defn- flag? [args flag] (contains-value? args flag))
 
 (defn parse-config
   "Build the game config map from command-line args."
