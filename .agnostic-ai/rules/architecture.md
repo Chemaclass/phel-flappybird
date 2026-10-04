@@ -8,7 +8,7 @@ alwaysApply: true
 # phel-flappybird
 
 Flappy Bird for the terminal, written in [Phel](https://phel-lang.org) (a Lisp
-that compiles to PHP). Requires PHP >= 8.5 and phel-lang ^0.53.
+that compiles to PHP). Requires PHP >= 8.5 and phel-lang ^0.54.
 
 ## Layout
 
