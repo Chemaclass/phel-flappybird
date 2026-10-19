@@ -7,7 +7,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
-- Requires PHP 8.5+ and Phel 0.53 (phel-cli-gui 0.16).
+- Requires PHP 8.5+ and Phel 0.54 (phel-cli-gui with Phel 0.54 support).
 - `composer dev` / `composer play` no longer stop after five minutes (Composer process timeout disabled).
 - `composer ci` also validates `composer.json` and lints; CI installs from the lock file, runs on pull requests, and smoke-tests the PHAR.
 

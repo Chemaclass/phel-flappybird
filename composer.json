@@ -30,8 +30,8 @@
     "require": {
         "php": ">=8.5",
         "ext-readline": "*",
-        "phel-lang/phel-lang": "^0.53",
-        "chemaclass/phel-cli-gui": "^0.16"
+        "phel-lang/phel-lang": "^0.54",
+        "chemaclass/phel-cli-gui": "dev-chore/bump-phel-0.54.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest"

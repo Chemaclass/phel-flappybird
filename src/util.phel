@@ -1,22 +1,22 @@
 (ns phel-flappybird.util)
 
 (defn- arg-value
-  "Returns the raw string after `key=` in args, or nil if absent."
-  [args key]
-  (let [prefix (str key "=")
+  "Returns the raw string after `k=` in args, or nil if absent."
+  [args k]
+  (let [prefix (str k "=")
         arg    (find #(php/str_starts_with (or % "") prefix) args)]
     (if (empty? arg)
       nil
       (nth (php/explode "=" arg) 1))))
 
 (defn get-int-arg
-  "Returns the int value of `key=N` in args, or default if absent."
-  [args key default]
-  (let [v (arg-value args key)]
+  "Returns the int value of `k=N` in args, or default if absent."
+  [args k default]
+  (let [v (arg-value args k)]
     (if (nil? v) default (int v))))
 
 (defn get-float-arg
-  "Returns the float value of `key=N` in args, or default if absent."
-  [args key default]
-  (let [v (arg-value args key)]
+  "Returns the float value of `k=N` in args, or default if absent."
+  [args k default]
+  (let [v (arg-value args k)]
     (if (nil? v) default (php/floatval v))))
