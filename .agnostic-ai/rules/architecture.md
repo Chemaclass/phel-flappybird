@@ -1,54 +1,31 @@
 ---
 name: architecture
-description: phel-flappybird project layout, architecture, and commands.
+description: Layout, functional-core architecture, commands and release.
 globs: "**/*"
 alwaysApply: true
 ---
 
-# phel-flappybird
-
-Flappy Bird for the terminal, written in [Phel](https://phel-lang.org) (a Lisp
-that compiles to PHP). Requires PHP >= 8.5 and phel-lang ^0.53.
-
-## Layout
+Terminal Flappy Bird in [Phel](https://phel-lang.org). Requires PHP >= 8.5 and phel-lang ^0.53.
 
 ```
 src/main.phel          CLI entry: --version / --help / run the game
 src/config.phel        parse key=value args into a config map
-src/game.phel          the loop (imperative shell): input -> step -> render -> sleep
+src/game.phel          loop (imperative shell): input -> step -> render -> sleep
 src/util.phel          arg helpers
-src/highscore.phel     persist best score to ~/.phel-flappybird-highscore
-src/core/physics.phel  PURE core: world value + `step` reducer (no I/O)
+src/highscore.phel     best score in ~/.phel-flappybird-highscore
+src/core/physics.phel  PURE core: world value and `step` reducer (no I/O)
 src/core/render.phel   terminal drawing via chemaclass/phel-cli-gui
-src/core/input.phel    keyboard reading (non-blocking stdin)
-src/core/version.phel  single source of truth for the version string
-tests/                 phel.test deftest files, mirroring src layout (`-test` suffix)
+src/core/input.phel    non-blocking stdin
+src/core/version.phel  the only version literal
+tests/                 phel.test files mirroring src (`-test` suffix)
 ```
 
-## Architecture: functional core / imperative shell
+Functional core, imperative shell:
 
-- The whole game is ONE immutable world map `{:bird :pipes :score :dead?}`,
-  advanced by the pure `step` reducer in `core/physics.phel`. Keep it pure:
-  no I/O, no randomness inside `step`. Randomness (the next pipe gap) is
-  **injected** by the caller as an argument, so `step` stays deterministic and
-  unit-testable.
-- `game.phel` is the only stateful part: read input, call `step`, render the
-  diff, sleep, recur.
-- `render.phel` / `input.phel` are the effectful edges. Never put game logic
-  there; put it in `physics.phel` with a matching test.
+- The game is one immutable world map `{:bird :pipes :score :dead?}` advanced by the pure `step` reducer in `core/physics.phel`. No I/O and no randomness inside `step`: the caller passes the next pipe gap in, so `step` stays deterministic and testable.
+- `game.phel` is the only stateful part: read input, call `step`, render the diff, sleep, recur.
+- `render.phel` and `input.phel` are the effectful edges. Put game logic in `physics.phel` with a test, never there.
 
-## Commands
+Commands: `composer dev`, `test`, `lint`, `format`, `build` (to `out/`), `phar` (`build/out/phel-flappybird.phar`), `ci` (validate, format-check, lint, test, build).
 
-```
-composer dev          run from source (vendor/bin/phel run phel-flappybird.main)
-composer test         run the phel test suite
-composer lint         lint src + tests
-composer format       format src + tests
-composer build        compile to out/
-composer phar         build the self-contained build/out/phel-flappybird.phar
-composer ci           validate + format-check + lint + test + build
-```
-
-Release with `./tools/release.sh [X.Y.Z]` (validates, builds + smoke-tests the
-PHAR, tags, pushes, creates the GitHub release). The version literal lives in
-`src/core/version.phel`; `release.sh` bumps it.
+Release: `./tools/release.sh [X.Y.Z]` validates, builds and smoke-tests the PHAR, tags, pushes and creates the GitHub release. It bumps the version literal in `src/core/version.phel`.
