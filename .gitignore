@@ -20,11 +20,15 @@ build/out/
 /.agnostic-ai/local/
 /.agnostic-ai/packs/
 /.claude/CLAUDE.md
+/.claude/CLAUDE.md.bak
 /.claude/agent-memory-local/
 /.claude/rules/
 /.claude/scheduled_tasks.lock
+/.claude/scheduled_tasks.lock.bak
 /.claude/settings.local.json
+/.claude/settings.local.json.bak
 /.claude/worktrees/
 /AGENTS.md
+/AGENTS.md.bak
 /agnostic-ai.local.yaml
 # <<< agnostic-ai (managed) <<<
